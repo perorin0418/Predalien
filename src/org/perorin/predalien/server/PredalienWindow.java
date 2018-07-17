@@ -1,4 +1,4 @@
-package org.perorin.predalien;
+package org.perorin.predalien.server;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,6 +30,11 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.plaf.metal.MetalToggleButtonUI;
+
+import org.perorin.predalien.client.PredalienDatum;
+import org.perorin.predalien.client.PredalienEdit;
+import org.perorin.predalien.client.PredalienModel;
+import org.perorin.predalien.client.PredalienTable;
 
 public class PredalienWindow extends JFrame {
 
@@ -110,6 +115,7 @@ public class PredalienWindow extends JFrame {
 		tglbtnPlay.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
+				// Not yet implemented...
 			}
 		});
 		northPanel.add(tglbtnPlay);

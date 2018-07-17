@@ -1,4 +1,4 @@
-package org.perorin.predalien;
+package org.perorin.predalien.client;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -8,6 +8,7 @@ import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -29,7 +30,7 @@ public class ViewerTest extends JApplet {
 		btnNewButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				PredalienWindow w = PredalienWindow.getInstance();
+				JOptionPane.showMessageDialog(null, "ほげほげ", "警告", JOptionPane.WARNING_MESSAGE);
 			}
 		});
 		btnNewButton.setBounds(12, 10, 91, 21);

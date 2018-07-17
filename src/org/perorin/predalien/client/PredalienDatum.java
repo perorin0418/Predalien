@@ -1,4 +1,4 @@
-package org.perorin.predalien;
+package org.perorin.predalien.client;
 
 import java.util.Vector;
 

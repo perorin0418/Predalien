@@ -1,4 +1,4 @@
-package org.perorin.predalien;
+package org.perorin.predalien.client;
 
 import java.awt.AWTException;
 import java.awt.Color;
@@ -24,6 +24,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.perorin.predalien.server.PredalienWindow;
+
 /**
  * require jdk 1.5
  * @author perorin
@@ -34,7 +36,7 @@ public class Predalien extends JPanel {
 	public String target = "";
 
 	/** カーソルイメージ */
-	private JLabel curImg = new JLabel(new ImageIcon(Predalien.class.getResource("Cursor-icon.png")));
+	private JLabel curImg = new JLabel(new ImageIcon(Predalien.class.getResource("PredalienCursor.png")));
 
 	/** 親のコンテナ */
 	private Container parentCnt = null;
@@ -273,11 +275,8 @@ public class Predalien extends JPanel {
 				Predalien.this.setVisible(PredalienWindow.isRecord);
 				transparentMouseCursor(parentCnt, PredalienWindow.isRecord);
 
-				if (!checkChildHash(parentCnt)) {
-
-					// 赤カーソル画像を最前面に
-					parentCnt.setComponentZOrder(Predalien.this, 0);
-				}
+				// 赤カーソル画像を最前面に
+				parentCnt.setComponentZOrder(Predalien.this, 0);
 
 				Point p = parentCnt.getMousePosition();
 

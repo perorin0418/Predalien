@@ -1,6 +1,8 @@
-package org.perorin.predalien;
+package org.perorin.predalien.client;
 
 import java.awt.Point;
+import java.io.File;
+import java.io.IOException;
 
 public class PredalienUtil {
 
@@ -35,6 +37,23 @@ public class PredalienUtil {
 	 */
 	public static String convMousePosPoint2String(Point mousePos) {
 		return "x=" + mousePos.x + ",y=" + mousePos.y;
+	}
+
+	/**
+	 * 一時ファイルの格納場所を返却するプリ
+	 * @return 一時ファイルの格納場所
+	 */
+	public static String getTempFilePath() {
+		String ret = "";
+		try {
+			File temp = File.createTempFile("temp-file-name", ".tmp");
+			temp.deleteOnExit();
+			String absolutePath = temp.getAbsolutePath();
+			ret = absolutePath.substring(0, absolutePath.lastIndexOf(File.separator));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return ret;
 	}
 
 }
