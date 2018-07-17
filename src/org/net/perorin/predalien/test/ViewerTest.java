@@ -1,4 +1,4 @@
-package org.perorin.predalien.client;
+package org.net.perorin.predalien.test;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -12,6 +12,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+
+import org.net.perorin.predalien.client.Predalien;
 
 public class ViewerTest extends JApplet {
 	private JTextField textField;

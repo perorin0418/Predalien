@@ -1,4 +1,4 @@
-package org.perorin.predalien.client;
+package org.net.perorin.predalien.server;
 
 import java.awt.Color;
 import java.awt.Dimension;

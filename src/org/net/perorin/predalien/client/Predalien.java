@@ -1,4 +1,4 @@
-package org.perorin.predalien.client;
+package org.net.perorin.predalien.client;
 
 import java.awt.AWTException;
 import java.awt.Color;
@@ -24,7 +24,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.perorin.predalien.server.PredalienWindow;
+import org.net.perorin.predalien.server.PredalienWindow;
 
 /**
  * require jdk 1.5

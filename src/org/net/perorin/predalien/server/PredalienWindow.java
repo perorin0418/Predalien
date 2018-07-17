@@ -1,4 +1,4 @@
-package org.perorin.predalien.server;
+package org.net.perorin.predalien.server;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -31,10 +31,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.plaf.metal.MetalToggleButtonUI;
 
-import org.perorin.predalien.client.PredalienDatum;
-import org.perorin.predalien.client.PredalienEdit;
-import org.perorin.predalien.client.PredalienModel;
-import org.perorin.predalien.client.PredalienTable;
+import org.net.perorin.predalien.client.PredalienDatum;
 
 public class PredalienWindow extends JFrame {
 
@@ -251,10 +248,10 @@ public class PredalienWindow extends JFrame {
 
 	private void recordSetting() {
 		if (isRecord) {
-			this.setIconImage(new ImageIcon(PredalienWindow.class.getResource("Alien-red-icon.png")).getImage());
+			this.setIconImage(new ImageIcon(PredalienWindow.class.getResource("PredalienRedIcon.png")).getImage());
 			this.setTitle("[記録中] Predalien Window");
 		} else {
-			this.setIconImage(new ImageIcon(PredalienWindow.class.getResource("Alien-green-icon.png")).getImage());
+			this.setIconImage(new ImageIcon(PredalienWindow.class.getResource("PredalienGreenIcon.png")).getImage());
 			this.setTitle("[待機中] Predalien Window");
 		}
 	}

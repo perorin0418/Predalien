@@ -1,4 +1,4 @@
-package org.perorin.predalien.client;
+package org.net.perorin.predalien.server;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -16,6 +16,9 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.metal.MetalToggleButtonUI;
+
+import org.net.perorin.predalien.client.PredalienDatum;
+import org.net.perorin.predalien.client.PredalienUtil;
 
 public class PredalienEdit extends JDialog {
 

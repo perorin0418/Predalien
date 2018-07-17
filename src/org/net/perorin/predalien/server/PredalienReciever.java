@@ -1,12 +1,12 @@
-package org.perorin.predalien.server;
+package org.net.perorin.predalien.server;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.perorin.predalien.client.PredalienDatum;
-import org.perorin.predalien.client.PredalienUtil;
+import org.net.perorin.predalien.client.PredalienDatum;
+import org.net.perorin.predalien.client.PredalienUtil;
 
 public class PredalienReciever {
 
