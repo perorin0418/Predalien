@@ -56,4 +56,13 @@ public class PredalienUtil {
 		return ret;
 	}
 
+	/**
+	 * 一時ファイル格納用のディレクトリ作成
+	 */
+	public static void createTempDir() {
+		String tmpPath = getTempFilePath();
+		File tmpDir = new File(tmpPath + File.separator + "Predalien");
+		tmpDir.mkdirs();
+	}
+
 }
