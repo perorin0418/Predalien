@@ -60,6 +60,18 @@ public class ViewerTest extends JApplet {
 		comboBox.setName("combo");
 		panel.add(comboBox);
 
+		JPanel panel_1 = new JPanel();
+		panel_1.setBounds(93, 127, 262, 112);
+		panel.add(panel_1);
+		panel_1.setLayout(null);
+
+		JPanel panel_2 = new JPanel();
+		panel_2.setBounds(28, 20, 206, 82);
+		panel_1.add(panel_2);
+
+		JButton btnNewButton_1 = new JButton("New button");
+		panel_2.add(btnNewButton_1);
+
 		panel.add(new Predalien());
 
 	}

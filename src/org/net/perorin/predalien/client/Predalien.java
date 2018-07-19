@@ -24,8 +24,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.net.perorin.predalien.server.PredalienWindow;
-
 /**
  * require jdk 1.5
  * @author perorin
@@ -47,14 +45,8 @@ public class Predalien extends JPanel {
 	/** 親コンテナ内の子コンポーネント達の変化検知用 */
 	private long childHash = 0L;
 
-	/** タイマー */
-	private Timer timer = null;
-
 	/** ロガー */
 	private Logger logger = Logger.getLogger(Predalien.class.getSimpleName());
-
-	/** 記録管理用ウィンドウ */
-	private PredalienWindow window = null;
 
 	/** Delay計測用 */
 	private long eventTime = 0L;
@@ -80,7 +72,7 @@ public class Predalien extends JPanel {
 			// フォーカスが外れるとキーリスナーが動かないので
 			curImg.requestFocusInWindow();
 
-			if (!PredalienWindow.isRecord) {
+			if (!PredalienUtil.isRecording()) {
 				return;
 			}
 
@@ -111,7 +103,7 @@ public class Predalien extends JPanel {
 			sb.append("Delay: " + delay + "]");
 			logger.info(sb.toString());
 
-			window.addDatum(new PredalienDatum(target, name, className, delay).registMouse(mouseInfo, relaMousePos, absMousePos));
+			PredalienDatumSender.send(new PredalienDatum(target, name, className, delay).registMouse(mouseInfo, relaMousePos, absMousePos));
 		}
 	};
 
@@ -121,7 +113,7 @@ public class Predalien extends JPanel {
 		@Override
 		public void keyReleased(KeyEvent e) {
 
-			if (!PredalienWindow.isRecord) {
+			if (!PredalienUtil.isRecording()) {
 				return;
 			}
 
@@ -144,7 +136,7 @@ public class Predalien extends JPanel {
 			sb.append("Delay: " + delay + "]");
 			logger.info(sb.toString());
 
-			window.addDatum(new PredalienDatum(target, "", "", delay).registKey(keyInfo, keyCode, keyModifiers));
+			PredalienDatumSender.send(new PredalienDatum(target, "", "", delay).registKey(keyInfo, keyCode, keyModifiers));
 
 		}
 	};
@@ -184,7 +176,22 @@ public class Predalien extends JPanel {
 
 		// 赤カーソルを取得しないように1pxずらす
 		Point p = new Point(pp.x - 1, pp.y - 1);
-		return parentCnt.getComponentAt(p);
+		return getComponentAtDeep(parentCnt, p);
+	}
+
+	/**
+	 * {@link Component#getComponentAt(Point)}のDeep版。
+	 * @param cmp 対象コンポーネント
+	 * @param p 対象座標
+	 * @return コンポーネント
+	 */
+	private Component getComponentAtDeep(Component cmp, Point p) {
+		Component c = cmp.getComponentAt(p);
+		if (cmp.equals(c)) {
+			return c;
+		} else {
+			return getComponentAtDeep(c, new Point(p.x - c.getX(), p.y - c.getY()));
+		}
 	}
 
 	/**
@@ -230,7 +237,7 @@ public class Predalien extends JPanel {
 			//TODO 正直、ほかのやり方があるかも・・・
 			for (int y = 0; y < cmp.getHeight(); y++) {
 				for (int x = 0; x < cmp.getWidth(); x++) {
-					ret.add(cmp.getComponentAt(x, y));
+					ret.add(getComponentAtDeep(cmp, new Point(x, y)));
 				}
 			}
 		}
@@ -265,15 +272,11 @@ public class Predalien extends JPanel {
 	 * タイマーセット
 	 */
 	private void scheduleTimer() {
-		timer = new Timer();
+		Timer timer = new Timer();
 		TimerTask task = new TimerTask() {
 
 			@Override
 			public void run() {
-
-				// カーソルの表示設定
-				Predalien.this.setVisible(PredalienWindow.isRecord);
-				transparentMouseCursor(parentCnt, PredalienWindow.isRecord);
 
 				// 赤カーソル画像を最前面に
 				parentCnt.setComponentZOrder(Predalien.this, 0);
@@ -281,13 +284,28 @@ public class Predalien extends JPanel {
 				Point p = parentCnt.getMousePosition();
 
 				// 画面外の時はnullになる
-				if (p != null && PredalienWindow.isRecord) {
+				if (p != null) {
 
 					Predalien.this.setBounds(p.x, p.y, 32, 32);
 				}
 			}
 		};
-		timer.schedule(task, 0, 1);
+		timer.schedule(task, 0, 10);
+
+		Timer timerRec = new Timer();
+		TimerTask taskRec = new TimerTask() {
+
+			@Override
+			public void run() {
+
+				// カーソルの表示設定
+				boolean recording = PredalienUtil.isRecording();
+				Predalien.this.setVisible(recording);
+				transparentMouseCursor(parentCnt, recording);
+
+			}
+		};
+		timerRec.schedule(taskRec, 0, 100);
 	}
 
 	/**
@@ -364,9 +382,6 @@ public class Predalien extends JPanel {
 			// 記録対象
 			target = parentCnt.getClass().getSimpleName() + ":" + parentCnt.getName();
 
-			// 記録管理用ウィンドウ展開
-			window = PredalienWindow.getInstance();
-
 			// 自動操作用ロボット作成
 			try {
 				robot = new Robot();
@@ -375,15 +390,6 @@ public class Predalien extends JPanel {
 			}
 
 			firstRendered = false;
-		}
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-
-		// 別に必要な処理じゃないけど気分的にタイマー止めとく
-		if (timer != null) {
-			timer.cancel();
 		}
 	}
 

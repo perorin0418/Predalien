@@ -1,15 +1,21 @@
 package org.net.perorin.predalien.client;
 
 import java.awt.Point;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class PredalienUtil {
 
-	public static void main(String[] args) {
-		System.out.println(convMousePosString2Point("x=100,y=520"));
-		System.out.println(convMousePosPoint2String(new Point(152, 954)));
-	}
+	private static FileFilter flagFileFilter = new FileFilter() {
+
+		public boolean accept(File pathname) {
+			return pathname.getName().matches("Recording-.*");
+		}
+	};
 
 	/**
 	 * インスタンス作成禁止
@@ -63,6 +69,43 @@ public class PredalienUtil {
 		String tmpPath = getTempFilePath();
 		File tmpDir = new File(tmpPath + File.separator + "Predalien");
 		tmpDir.mkdirs();
+	}
+
+	/**
+	 * 記録中かどうか設定
+	 * @param b 記録中
+	 */
+	public static void setRecording(boolean b) {
+		createTempDir();
+		File[] files = new File(getTempFilePath() + File.separator + "Predalien").listFiles(flagFileFilter);
+		for (File file : files) {
+			file.delete();
+		}
+		try {
+			File file = File.createTempFile("Predalien" + File.separator + "Recording-", ".tmp");
+			file.deleteOnExit();
+			PrintWriter pw = new PrintWriter(file);
+			pw.println(String.valueOf(b));
+			pw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 記録中かどうか
+	 * @return 記録中かどうか
+	 */
+	public static boolean isRecording() {
+		try {
+			File file = new File(getTempFilePath() + File.separator + "Predalien").listFiles(flagFileFilter)[0];
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line = br.readLine();
+			br.close();
+			return Boolean.parseBoolean(line);
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 }

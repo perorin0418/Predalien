@@ -12,7 +12,7 @@ import java.util.TimerTask;
 import org.net.perorin.predalien.client.PredalienDatum;
 import org.net.perorin.predalien.client.PredalienUtil;
 
-public class PredalienReciever {
+public class PredalienDatumReciever {
 
 	/** tmpファイルパス */
 	private File tmpFilePath = new File(PredalienUtil.getTempFilePath() + File.separator + "Predalien");
@@ -26,7 +26,7 @@ public class PredalienReciever {
 	/** ファイルフィルターの正規表現 */
 	private String tmpPattern = "^[0-9]{16}-PredalienDatum.*$";
 
-	public PredalienReciever() {
+	public void run() {
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 
@@ -38,7 +38,6 @@ public class PredalienReciever {
 
 				// 取得できなけりゃリターン
 				if (files == null) {
-					System.out.println("return");
 					return;
 				}
 
@@ -83,7 +82,7 @@ public class PredalienReciever {
 	 * @param properties
 	 * @return
 	 */
-	public PredalienDatum load(Properties properties) {
+	private PredalienDatum load(Properties properties) {
 		String target = properties.getProperty("Target");
 		String name = properties.getProperty("Name");
 		String className = properties.getProperty("ClassName");

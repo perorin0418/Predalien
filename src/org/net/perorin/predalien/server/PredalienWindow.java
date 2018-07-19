@@ -32,6 +32,7 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.plaf.metal.MetalToggleButtonUI;
 
 import org.net.perorin.predalien.client.PredalienDatum;
+import org.net.perorin.predalien.client.PredalienUtil;
 
 public class PredalienWindow extends JFrame {
 
@@ -40,7 +41,7 @@ public class PredalienWindow extends JFrame {
 	private JScrollPane scrollPane;
 	private PredalienTable table;
 	private PredalienModel model;
-	public static boolean isRecord = false;
+	private PredalienDatumReciever reciever;
 
 	/**
 	 * シングルトン
@@ -66,10 +67,17 @@ public class PredalienWindow extends JFrame {
 	}
 
 	private void initialize() {
+		reciever = new PredalienDatumReciever() {
+			@Override
+			public void recieve(PredalienDatum datum) {
+				addDatum(datum);
+			}
+		};
+		reciever.run();
 	}
 
 	private void initFrame() {
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 900, 600);
 		recordSetting();
 		contentPane = new JPanel();
@@ -95,11 +103,11 @@ public class PredalienWindow extends JFrame {
 		tglbtnRecord.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				isRecord = !isRecord;
+				PredalienUtil.setRecording(!PredalienUtil.isRecording());
 				recordSetting();
 			}
 		});
-		tglbtnRecord.setSelected(isRecord);
+		tglbtnRecord.setSelected(PredalienUtil.isRecording());
 		northPanel.add(tglbtnRecord);
 
 		final JToggleButton tglbtnPlay = new JToggleButton("再生");
@@ -231,8 +239,8 @@ public class PredalienWindow extends JFrame {
 		timer.schedule(task, 0, 1000);
 	}
 
-	public void addDatum(PredalienDatum pdm) {
-		if (isRecord) {
+	private void addDatum(PredalienDatum pdm) {
+		if (PredalienUtil.isRecording()) {
 			model.addRow(pdm.toArray());
 
 			// スクロールバーが一番下にあるか判定
@@ -247,7 +255,7 @@ public class PredalienWindow extends JFrame {
 	}
 
 	private void recordSetting() {
-		if (isRecord) {
+		if (PredalienUtil.isRecording()) {
 			this.setIconImage(new ImageIcon(PredalienWindow.class.getResource("PredalienRedIcon.png")).getImage());
 			this.setTitle("[記録中] Predalien Window");
 		} else {
