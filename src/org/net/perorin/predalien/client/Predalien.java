@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 
 /**
  * require jdk 1.5
+ * 
  * @author perorin
  */
 public class Predalien extends JPanel {
@@ -103,7 +104,8 @@ public class Predalien extends JPanel {
 			sb.append("Delay: " + delay + "]");
 			logger.info(sb.toString());
 
-			PredalienDatumSender.send(new PredalienDatum(target, name, className, delay).registMouse(mouseInfo, relaMousePos, absMousePos));
+			PredalienDatumSender.send(new PredalienDatum(target, name, className, delay).registMouse(mouseInfo,
+					relaMousePos, absMousePos));
 		}
 	};
 
@@ -136,7 +138,8 @@ public class Predalien extends JPanel {
 			sb.append("Delay: " + delay + "]");
 			logger.info(sb.toString());
 
-			PredalienDatumSender.send(new PredalienDatum(target, "", "", delay).registKey(keyInfo, keyCode, keyModifiers));
+			PredalienDatumSender.send(new PredalienDatum(target, "", "", delay).registKey(keyInfo, keyCode,
+					keyModifiers));
 
 		}
 	};
@@ -167,6 +170,7 @@ public class Predalien extends JPanel {
 	/**
 	 * 赤カーソルの位置からコンポーネントを取得<br>
 	 * TODO 赤カーソルから1pxずらした位置でコンポーネントを取得している
+	 * 
 	 * @return コンポーネント
 	 */
 	private Component currentComponentByPoint() {
@@ -181,8 +185,11 @@ public class Predalien extends JPanel {
 
 	/**
 	 * {@link Component#getComponentAt(Point)}のDeep版。
-	 * @param cmp 対象コンポーネント
-	 * @param p 対象座標
+	 * 
+	 * @param cmp
+	 *            対象コンポーネント
+	 * @param p
+	 *            対象座標
 	 * @return コンポーネント
 	 */
 	private Component getComponentAtDeep(Component cmp, Point p) {
@@ -196,12 +203,14 @@ public class Predalien extends JPanel {
 
 	/**
 	 * マウスカーソルを透明にする
-	 * @param c コンポーネント
+	 * 
+	 * @param c
+	 *            コンポーネント
 	 * @param transparent
-	 * <ul>
-	 * <li>true - 透明やで
-	 * <li>false - 透明じゃない
-	 * </ul>
+	 *            <ul>
+	 *            <li>true - 透明やで
+	 *            <li>false - 透明じゃない
+	 *            </ul>
 	 */
 	private void transparentMouseCursor(Container c, boolean transparent) {
 		if (transparent) {
@@ -222,7 +231,9 @@ public class Predalien extends JPanel {
 	/**
 	 * Container内のコンポーネントの一覧を取得する<br>
 	 * Comboboxみたいないくつかのコンポーネントが合体してるやつもバラバラにコンポーネントを取得する（できるだけ）
-	 * @param c Container
+	 * 
+	 * @param c
+	 *            Container
 	 * @return コンポーネント一覧
 	 */
 	private Component[] listComponents(Container c) {
@@ -234,7 +245,7 @@ public class Predalien extends JPanel {
 			ret.add(cmp);
 
 			// 座標からコンポーネント探す
-			//TODO 正直、ほかのやり方があるかも・・・
+			// TODO 正直、ほかのやり方があるかも・・・
 			for (int y = 0; y < cmp.getHeight(); y++) {
 				for (int x = 0; x < cmp.getWidth(); x++) {
 					ret.add(getComponentAtDeep(cmp, new Point(x, y)));
@@ -246,12 +257,14 @@ public class Predalien extends JPanel {
 
 	/**
 	 * Component内の子コンポーネントに変化がないかチェックするで
-	 * @param c コンポーネント
+	 * 
+	 * @param c
+	 *            コンポーネント
 	 * @return
-	 * <ul>
-	 * <li>true - 変化なし
-	 * <li>false - 変化あり
-	 * </ul>
+	 *         <ul>
+	 *         <li>true - 変化なし
+	 *         <li>false - 変化あり
+	 *         </ul>
 	 */
 	private boolean checkChildHash(Container c) {
 		Component cmps[] = listComponents(c);
@@ -310,6 +323,7 @@ public class Predalien extends JPanel {
 
 	/**
 	 * 記録と記録の間の時間の計る
+	 * 
 	 * @return イベント間の時間
 	 */
 	private String measureDelay() {
@@ -348,6 +362,7 @@ public class Predalien extends JPanel {
 
 	/**
 	 * コンポーネントを探す
+	 * 
 	 * @param datum
 	 * @return コンポーネント
 	 */
@@ -358,7 +373,7 @@ public class Predalien extends JPanel {
 				return c;
 			}
 		}
-		return parentCnt.getComponentAt(PredalienUtil.convMousePosString2Point(datum.getAbsMousePos()));
+		return getComponentAtDeep(parentCnt, PredalienUtil.convMousePosString2Point(datum.getAbsMousePos()));
 	}
 
 	@Override
