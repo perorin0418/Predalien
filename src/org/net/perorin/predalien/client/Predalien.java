@@ -10,19 +10,25 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Robot;
 import java.awt.Toolkit;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import org.omg.CORBA.DATA_CONVERSION;
 
 /**
  * require jdk 1.5
@@ -338,10 +344,52 @@ public class Predalien extends JPanel {
 		}
 	}
 
+	/**
+	 * ルートのコンポーネントを取得する。<br>
+	 * Appletだとたぶんviewerが取れる？
+	 * 
+	 * @param cmp
+	 *            コンポーネント
+	 * @return ルートコンポーネント
+	 */
+	private Component getRootComponent(Component cmp) {
+		Component c = cmp.getParent();
+		if (c == null) {
+			return cmp;
+		} else {
+			return getRootComponent(c);
+		}
+	}
+
+	/**
+	 * 指定したコンポーネントを含むウィンドウのスクショを撮る
+	 * 
+	 * @param cmp
+	 *            コンポーネント
+	 */
+	private void screenshot(Component cmp) {
+		Component root = getRootComponent(cmp);
+		BufferedImage bi = robot.createScreenCapture(root.getBounds());
+		try {
+			// TODO 保存先の決定方法
+			ImageIO.write(bi, "PNG", new File(""));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * マウス自動操作
+	 * 
+	 * @param datum
+	 *            データム
+	 */
 	public void click(PredalienDatum datum) {
 
 		// 待つ
 		robot.delay(datum.getDelayAsInt());
+
+		// TODO スクショ取得
 
 		// コンポーネント取得
 		Component cmp = this.searchComponent(datum);
@@ -354,6 +402,43 @@ public class Predalien extends JPanel {
 
 		// マウス移動
 		robot.mouseMove(p.x + clickPoint.x, p.y + clickPoint.y);
+
+		// キー修飾プレス
+		if (datum.getMouseInfo().contains("Shift")) {
+			robot.keyPress(KeyEvent.VK_SHIFT);
+		}
+		if (datum.getMouseInfo().contains("Ctrl")) {
+			robot.keyPress(KeyEvent.VK_CONTROL);
+		}
+		if (datum.getMouseInfo().contains("Alt")) {
+			robot.keyPress(KeyEvent.VK_ALT);
+		}
+
+		// マウスクリック
+		if (datum.getMouseInfo().contains("Button1")) {
+			robot.mousePress(InputEvent.BUTTON1_MASK);
+			robot.delay(1000);
+			robot.mouseRelease(InputEvent.BUTTON1_MASK);
+		} else if (datum.getMouseInfo().contains("Button2")) {
+			robot.mousePress(InputEvent.BUTTON2_MASK);
+			robot.delay(1000);
+			robot.mouseRelease(InputEvent.BUTTON2_MASK);
+		} else if (datum.getMouseInfo().contains("Button3")) {
+			robot.mousePress(InputEvent.BUTTON3_MASK);
+			robot.delay(1000);
+			robot.mouseRelease(InputEvent.BUTTON3_MASK);
+		}
+
+		// キー修飾リリース
+		if (datum.getMouseInfo().contains("Shift")) {
+			robot.keyRelease(KeyEvent.VK_SHIFT);
+		}
+		if (datum.getMouseInfo().contains("Ctrl")) {
+			robot.keyRelease(KeyEvent.VK_CONTROL);
+		}
+		if (datum.getMouseInfo().contains("Alt")) {
+			robot.keyRelease(KeyEvent.VK_ALT);
+		}
 	}
 
 	public void key(PredalienDatum datum) {
