@@ -24,6 +24,7 @@ public class PredalienEdit extends JDialog {
 
 	private JPanel pnlMouse;
 	private JPanel pnlKey;
+	private JTextField fldTarget;
 	private JTextField fldName;
 	private JTextField fldClassName;
 	private JRadioButton rdoMouse;
@@ -47,7 +48,7 @@ public class PredalienEdit extends JDialog {
 
 	public static void main(String[] args) {
 		try {
-			//			PredalienEdit dialog = new PredalienEdit(new Point(100, 100));
+			// PredalienEdit dialog = new PredalienEdit(new Point(100, 100));
 			PredalienEdit dialog = new PredalienEdit();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
@@ -56,8 +57,8 @@ public class PredalienEdit extends JDialog {
 		}
 	}
 
-	public PredalienEdit() {
-		setBounds(100, 100, 382, 396);
+	private PredalienEdit() {
+		setBounds(100, 100, 382, 439);
 		setTitle("[その他] Predalien Edit");
 		initDialog();
 		initCommon();
@@ -69,7 +70,7 @@ public class PredalienEdit extends JDialog {
 
 	public PredalienEdit(Point parentPosition) {
 		super();
-		setBounds(parentPosition.x, parentPosition.y, 382, 396);
+		setBounds(parentPosition.x, parentPosition.y, 382, 439);
 		setTitle("[追加] Predalien Edit");
 		initDialog();
 		initCommon();
@@ -82,7 +83,7 @@ public class PredalienEdit extends JDialog {
 
 	public PredalienEdit(Point parentPosition, PredalienDatum data) {
 		super();
-		setBounds(parentPosition.x, parentPosition.y, 382, 396);
+		setBounds(parentPosition.x, parentPosition.y, 382, 439);
 		setTitle("[編集] Predalien Edit");
 		initDialog();
 		initCommon();
@@ -98,15 +99,31 @@ public class PredalienEdit extends JDialog {
 	}
 
 	private void initCommon() {
+
+		JLabel lblTarget = new JLabel("ターゲット");
+		lblTarget.setForeground(new Color(0, 200, 0));
+		lblTarget.setFont(new Font("ＭＳ Ｐゴシック", Font.PLAIN, 12));
+		lblTarget.setBackground(Color.DARK_GRAY);
+		lblTarget.setBounds(12, 10, 209, 13);
+		getContentPane().add(lblTarget);
+
+		fldTarget = new JTextField();
+		fldTarget.setForeground(Color.GREEN);
+		fldTarget.setCaretColor(Color.LIGHT_GRAY);
+		fldTarget.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.GRAY, Color.DARK_GRAY));
+		fldTarget.setBackground(Color.GRAY);
+		fldTarget.setBounds(12, 25, 356, 19);
+		getContentPane().add(fldTarget);
+
 		JLabel lblName = new JLabel("コンポーネント名");
 		lblName.setBackground(Color.DARK_GRAY);
 		lblName.setForeground(new Color(0, 200, 0));
 		lblName.setFont(new Font("ＭＳ Ｐゴシック", Font.PLAIN, 12));
-		lblName.setBounds(12, 10, 209, 13);
+		lblName.setBounds(12, 54, 209, 13);
 		getContentPane().add(lblName);
 
 		fldName = new JTextField();
-		fldName.setBounds(12, 25, 356, 19);
+		fldName.setBounds(12, 69, 356, 19);
 		fldName.setBackground(Color.GRAY);
 		fldName.setCaretColor(Color.LIGHT_GRAY);
 		fldName.setForeground(Color.GREEN);
@@ -117,7 +134,7 @@ public class PredalienEdit extends JDialog {
 		lblClassName.setForeground(new Color(0, 200, 0));
 		lblClassName.setFont(new Font("ＭＳ Ｐゴシック", Font.PLAIN, 12));
 		lblClassName.setBackground(Color.DARK_GRAY);
-		lblClassName.setBounds(12, 54, 209, 13);
+		lblClassName.setBounds(12, 98, 209, 13);
 		getContentPane().add(lblClassName);
 
 		fldClassName = new JTextField();
@@ -125,7 +142,7 @@ public class PredalienEdit extends JDialog {
 		fldClassName.setCaretColor(Color.LIGHT_GRAY);
 		fldClassName.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.GRAY, Color.DARK_GRAY));
 		fldClassName.setBackground(Color.GRAY);
-		fldClassName.setBounds(12, 69, 356, 19);
+		fldClassName.setBounds(12, 113, 356, 19);
 		getContentPane().add(fldClassName);
 
 		ButtonGroup btnGrpMouseKey = new ButtonGroup();
@@ -134,7 +151,7 @@ public class PredalienEdit extends JDialog {
 		rdoMouse.setForeground(new Color(0, 200, 0));
 		rdoMouse.setFont(new Font("ＭＳ Ｐゴシック", Font.PLAIN, 12));
 		rdoMouse.setBackground(Color.DARK_GRAY);
-		rdoMouse.setBounds(8, 96, 75, 21);
+		rdoMouse.setBounds(8, 140, 75, 21);
 		rdoMouse.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -149,7 +166,7 @@ public class PredalienEdit extends JDialog {
 		rdoKey.setForeground(new Color(0, 200, 0));
 		rdoKey.setFont(new Font("ＭＳ Ｐゴシック", Font.PLAIN, 12));
 		rdoKey.setBackground(Color.DARK_GRAY);
-		rdoKey.setBounds(87, 96, 75, 21);
+		rdoKey.setBounds(87, 140, 75, 21);
 		rdoKey.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -164,7 +181,7 @@ public class PredalienEdit extends JDialog {
 		lblDelay.setForeground(new Color(0, 200, 0));
 		lblDelay.setFont(new Font("ＭＳ Ｐゴシック", Font.PLAIN, 12));
 		lblDelay.setBackground(Color.DARK_GRAY);
-		lblDelay.setBounds(12, 287, 209, 13);
+		lblDelay.setBounds(12, 331, 209, 13);
 		getContentPane().add(lblDelay);
 
 		fldDelay = new JTextField();
@@ -172,7 +189,7 @@ public class PredalienEdit extends JDialog {
 		fldDelay.setCaretColor(Color.LIGHT_GRAY);
 		fldDelay.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.GRAY, Color.DARK_GRAY));
 		fldDelay.setBackground(Color.GRAY);
-		fldDelay.setBounds(12, 303, 356, 19);
+		fldDelay.setBounds(12, 347, 356, 19);
 		getContentPane().add(fldDelay);
 
 		JButton btnCancel = new JButton("Cancel");
@@ -181,7 +198,7 @@ public class PredalienEdit extends JDialog {
 		btnCancel.setBackground(Color.DARK_GRAY);
 		btnCancel.setForeground(new Color(0, 200, 0));
 		btnCancel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 16));
-		btnCancel.setBounds(278, 332, 91, 25);
+		btnCancel.setBounds(278, 376, 91, 25);
 		btnCancel.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -196,7 +213,7 @@ public class PredalienEdit extends JDialog {
 		btnOk.setBackground(Color.DARK_GRAY);
 		btnOk.setForeground(new Color(0, 200, 0));
 		btnOk.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 16));
-		btnOk.setBounds(173, 332, 91, 25);
+		btnOk.setBounds(173, 376, 91, 25);
 		btnOk.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -210,7 +227,7 @@ public class PredalienEdit extends JDialog {
 
 		pnlMouse = new JPanel();
 		pnlMouse.setBackground(Color.DARK_GRAY);
-		pnlMouse.setBounds(0, 123, 369, 154);
+		pnlMouse.setBounds(0, 167, 369, 154);
 		pnlMouse.setLayout(null);
 		getContentPane().add(pnlMouse);
 
@@ -344,7 +361,7 @@ public class PredalienEdit extends JDialog {
 	private void initKey() {
 		pnlKey = new JPanel();
 		pnlKey.setBackground(Color.DARK_GRAY);
-		pnlKey.setBounds(0, 123, 368, 134);
+		pnlKey.setBounds(0, 167, 368, 134);
 		pnlKey.setLayout(null);
 		getContentPane().add(pnlKey);
 
@@ -409,6 +426,7 @@ public class PredalienEdit extends JDialog {
 	}
 
 	private void setDatum(PredalienDatum datum) {
+		String target = datum.getTarget();
 		String name = datum.getName();
 		String className = datum.getClassName();
 		String mouseInfo = datum.getMouseInfo();
@@ -418,6 +436,9 @@ public class PredalienEdit extends JDialog {
 		String keyCode = datum.getKeyCode();
 		String keyModifiers = datum.getKeyModifiers();
 		String delay = datum.getDelay();
+		
+		// ターゲット
+		fldTarget.setText(target);
 
 		// コンポーネント名
 		fldName.setText(name);
@@ -478,11 +499,11 @@ public class PredalienEdit extends JDialog {
 		fldDelay.setText(delay);
 
 		// マウスとキーの切り替え
-		if("".equals(mouseInfo)){
+		if ("".equals(mouseInfo)) {
 			rdoKey.setSelected(true);
 			pnlMouse.setVisible(false);
 			pnlKey.setVisible(true);
-		}else{
+		} else {
 			rdoMouse.setSelected(true);
 			pnlMouse.setVisible(true);
 			pnlKey.setVisible(false);
