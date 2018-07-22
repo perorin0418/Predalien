@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -17,10 +19,12 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.metal.MetalToggleButtonUI;
 
-import org.net.perorin.predalien.client.PredalienDatum;
-import org.net.perorin.predalien.client.PredalienUtil;
+import org.net.perorin.predalien.common.PredalienDatum;
+import org.net.perorin.predalien.common.PredalienUtil;
 
 public class PredalienEdit extends JDialog {
+
+	public PredalienDatum transferDatum = null;
 
 	private JPanel pnlMouse;
 	private JPanel pnlKey;
@@ -79,6 +83,7 @@ public class PredalienEdit extends JDialog {
 		rdoMouse.setSelected(true);
 		pnlMouse.setVisible(true);
 		pnlKey.setVisible(false);
+
 	}
 
 	public PredalienEdit(Point parentPosition, PredalienDatum data) {
@@ -202,7 +207,7 @@ public class PredalienEdit extends JDialog {
 		btnCancel.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				PredalienEdit.this.dispose();
+				PredalienEdit.this.setVisible(false);
 			}
 		});
 		getContentPane().add(btnCancel);
@@ -217,6 +222,8 @@ public class PredalienEdit extends JDialog {
 		btnOk.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
+				transferDatum = getDatum();
+				PredalienEdit.this.setVisible(false);
 			}
 		});
 		getContentPane().add(btnOk);
@@ -243,6 +250,7 @@ public class PredalienEdit extends JDialog {
 		rdoMouseInfoLeft.setBackground(Color.DARK_GRAY);
 		rdoMouseInfoLeft.setForeground(new Color(0, 200, 0));
 		rdoMouseInfoLeft.setFont(new Font("ＭＳ Ｐゴシック", Font.PLAIN, 12));
+		rdoMouseInfoLeft.setSelected(true);
 		pnlMouse.add(rdoMouseInfoLeft);
 		btnGrpMouseInfo.add(rdoMouseInfoLeft);
 
@@ -393,8 +401,32 @@ public class PredalienEdit extends JDialog {
 		fldKeyCode.setCaretColor(Color.LIGHT_GRAY);
 		fldKeyCode.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.GRAY, Color.DARK_GRAY));
 		fldKeyCode.setBackground(Color.GRAY);
-		fldKeyCode.setBounds(12, 62, 356, 19);
+		fldKeyCode.setBounds(12, 62, 196, 19);
+		fldKeyCode.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				updateKeyInfo();
+			}
+		});
 		pnlKey.add(fldKeyCode);
+
+		JButton btnKeyCode = new JButton("キーコード一覧");
+		btnKeyCode.setUI(myButtonUI);
+		btnKeyCode.setForeground(new Color(0, 200, 0));
+		btnKeyCode.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 16));
+		btnKeyCode.setBorder(new BevelBorder(BevelBorder.RAISED, Color.DARK_GRAY, Color.BLACK));
+		btnKeyCode.setBackground(Color.DARK_GRAY);
+		btnKeyCode.setBounds(220, 60, 140, 25);
+		btnKeyCode.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				PredalienKeyCode pkc = new PredalienKeyCode(PredalienEdit.this.getLocation());
+				pkc.setModal(true);
+				pkc.setVisible(true);
+			}
+		});
+		pnlKey.add(btnKeyCode);
 
 		JLabel lblKeyModifiers = new JLabel("キー修飾");
 		lblKeyModifiers.setForeground(new Color(0, 200, 0));
@@ -408,6 +440,12 @@ public class PredalienEdit extends JDialog {
 		chkKeyModifiersShift.setForeground(new Color(0, 200, 0));
 		chkKeyModifiersShift.setBackground(Color.DARK_GRAY);
 		chkKeyModifiersShift.setBounds(12, 105, 74, 21);
+		chkKeyModifiersShift.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				updateKeyInfo();
+			}
+		});
 		pnlKey.add(chkKeyModifiersShift);
 
 		chkKeyModifiersCtrl = new JCheckBox("Ctrl");
@@ -415,6 +453,12 @@ public class PredalienEdit extends JDialog {
 		chkKeyModifiersCtrl.setFont(new Font("ＭＳ Ｐゴシック", Font.PLAIN, 12));
 		chkKeyModifiersCtrl.setBackground(Color.DARK_GRAY);
 		chkKeyModifiersCtrl.setBounds(90, 105, 74, 21);
+		chkKeyModifiersCtrl.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				updateKeyInfo();
+			}
+		});
 		pnlKey.add(chkKeyModifiersCtrl);
 
 		chkKeyModifiersAlt = new JCheckBox("Alt");
@@ -422,6 +466,12 @@ public class PredalienEdit extends JDialog {
 		chkKeyModifiersAlt.setFont(new Font("ＭＳ Ｐゴシック", Font.PLAIN, 12));
 		chkKeyModifiersAlt.setBackground(Color.DARK_GRAY);
 		chkKeyModifiersAlt.setBounds(168, 105, 74, 21);
+		chkKeyModifiersAlt.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				updateKeyInfo();
+			}
+		});
 		pnlKey.add(chkKeyModifiersAlt);
 	}
 
@@ -436,7 +486,7 @@ public class PredalienEdit extends JDialog {
 		String keyCode = datum.getKeyCode();
 		String keyModifiers = datum.getKeyModifiers();
 		String delay = datum.getDelay();
-		
+
 		// ターゲット
 		fldTarget.setText(target);
 
@@ -508,6 +558,88 @@ public class PredalienEdit extends JDialog {
 			pnlMouse.setVisible(true);
 			pnlKey.setVisible(false);
 		}
+	}
+
+	private PredalienDatum getDatum() {
+
+		// ターゲット
+		String target = fldTarget.getText();
+
+		// コンポーネント名
+		String name = fldName.getText();
+
+		// クラス名
+		String className = fldClassName.getText();
+
+		// マウス情報
+		String mouseInfo = "";
+		if (rdoMouseInfoLeft.isSelected()) {
+			mouseInfo = "Button1";
+		} else if (rdoMouseInfoCenter.isSelected()) {
+			mouseInfo = "Button2";
+		} else if (rdoMouseInfoRight.isSelected()) {
+			mouseInfo = "Button3";
+		}
+		if (chkMouseInfoShift.isSelected()) {
+			mouseInfo += "+Shift";
+		}
+		if (chkMouseInfoCtrl.isSelected()) {
+			mouseInfo += "+Ctrl";
+		}
+		if (chkMouseInfoAlt.isSelected()) {
+			mouseInfo += "+Alt";
+		}
+
+		// 相対マウス位置
+		String relaMousePos = "x=" + fldRelaMousePosX.getText() + ",y=" + fldRelaMousePosY.getText();
+
+		// 絶対マウス位置
+		String absMousePos = "x=" + fldAbsMousePosX.getText() + ",y=" + fldAbsMousePosY.getText();
+
+		// キー情報
+		String keyInfo = fldKeyInfo.getText();
+
+		// キーコード
+		String keyCode = fldKeyCode.getText();
+
+		// キー修飾
+		int keyModifiers_buf = 0;
+		if (chkKeyModifiersShift.isSelected()) {
+			keyModifiers_buf += 1;
+		}
+		if (chkKeyModifiersCtrl.isSelected()) {
+			keyModifiers_buf += 2;
+		}
+		if (chkKeyModifiersAlt.isSelected()) {
+			keyModifiers_buf += 8;
+		}
+		String keyModifiers = String.valueOf(keyModifiers_buf);
+
+		// 待機時間
+		String delay = fldDelay.getText();
+
+		PredalienDatum datum = new PredalienDatum(target, name, className, delay)
+				.registMouse(mouseInfo, relaMousePos, absMousePos)
+				.registKey(keyInfo, keyCode, keyModifiers);
+
+		return datum;
+	}
+
+	private void updateKeyInfo() {
+		String keyInfo = "";
+		if (PredalienKeyCode.map.get(fldKeyCode.getText()) != null) {
+			keyInfo += PredalienKeyCode.map.get(fldKeyCode.getText());
+		}
+		if (chkKeyModifiersShift.isSelected()) {
+			keyInfo += "+Shift";
+		}
+		if (chkKeyModifiersCtrl.isSelected()) {
+			keyInfo += "+Ctrl";
+		}
+		if (chkKeyModifiersAlt.isSelected()) {
+			keyInfo += "+Alt";
+		}
+		fldKeyInfo.setText(keyInfo);
 	}
 
 	private MetalToggleButtonUI myButtonUI = new MetalToggleButtonUI() {
