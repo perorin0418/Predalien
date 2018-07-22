@@ -16,23 +16,23 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.omg.CORBA.DATA_CONVERSION;
+import org.net.perorin.predalien.common.PredalienDatum;
+import org.net.perorin.predalien.common.PredalienUtil;
 
 /**
  * require jdk 1.5
- * 
+ *
  * @author perorin
  */
 public class Predalien extends JPanel {
@@ -69,6 +69,21 @@ public class Predalien extends JPanel {
 	/** ロボット */
 	private Robot robot = null;
 
+	/** 自動操作再生の通信受信用 */
+	private PredalienOrderReciever reciever = new PredalienOrderReciever() {
+
+		@Override
+		public void recieve(PredalienDatum datum) {
+
+			// マウス操作かキー操作か判定
+			if (!datum.getMouseInfo().equals("")) {
+				click(datum);
+			} else {
+				key(datum);
+			}
+		};
+	};
+
 	/**
 	 * マウスアダプター
 	 */
@@ -91,10 +106,9 @@ public class Predalien extends JPanel {
 			String mouseInfo = MouseEvent.getMouseModifiersText(e.getModifiers());
 
 			// マウス座標をコンポーネント内の座標系で取得
-			int childx = parentCnt.getMousePosition().x - c.getX();
-			int childy = parentCnt.getMousePosition().y - c.getY();
+			Point childPoint = getLocationFrom(c, parentCnt);
 
-			String relaMousePos = "x=" + childx + ",y=" + childy;
+			String relaMousePos = "x=" + childPoint.x + ",y=" + childPoint.y;
 			String absMousePos = "x=" + parentCnt.getMousePosition().x + ",y=" + parentCnt.getMousePosition().y;
 
 			// 前回のイベント時の時間差
@@ -176,7 +190,7 @@ public class Predalien extends JPanel {
 	/**
 	 * 赤カーソルの位置からコンポーネントを取得<br>
 	 * TODO 赤カーソルから1pxずらした位置でコンポーネントを取得している
-	 * 
+	 *
 	 * @return コンポーネント
 	 */
 	private Component currentComponentByPoint() {
@@ -190,8 +204,45 @@ public class Predalien extends JPanel {
 	}
 
 	/**
+	 * cmpの位置をfromを基本とした座標系で取得する
+	 * @param cmp
+	 * @param from
+	 * @return
+	 */
+	private Point getLocationFrom(Component cmp, Component from) {
+		List<Component> list = getParentsTo(cmp, from);
+		int retx = 0;
+		int rety = 0;
+		for (Component c : list) {
+			retx += c.getX();
+			rety += c.getY();
+		}
+		return new Point(retx, rety);
+	}
+
+	/**
+	 * cmpの親をさかのぼっていき、toになるまでの一覧を取得する
+	 * @param cmp
+	 * @param to
+	 * @return 親一覧
+	 */
+	private List<Component> getParentsTo(Component cmp, Component to) {
+		List<Component> ret = new ArrayList<Component>();
+		Component c = cmp;
+		while (true) {
+			if (c.equals(to)) {
+				break;
+			} else {
+				ret.add(c);
+			}
+			c = c.getParent();
+		}
+		return ret;
+	}
+
+	/**
 	 * {@link Component#getComponentAt(Point)}のDeep版。
-	 * 
+	 *
 	 * @param cmp
 	 *            対象コンポーネント
 	 * @param p
@@ -209,7 +260,7 @@ public class Predalien extends JPanel {
 
 	/**
 	 * マウスカーソルを透明にする
-	 * 
+	 *
 	 * @param c
 	 *            コンポーネント
 	 * @param transparent
@@ -237,7 +288,7 @@ public class Predalien extends JPanel {
 	/**
 	 * Container内のコンポーネントの一覧を取得する<br>
 	 * Comboboxみたいないくつかのコンポーネントが合体してるやつもバラバラにコンポーネントを取得する（できるだけ）
-	 * 
+	 *
 	 * @param c
 	 *            Container
 	 * @return コンポーネント一覧
@@ -263,7 +314,7 @@ public class Predalien extends JPanel {
 
 	/**
 	 * Component内の子コンポーネントに変化がないかチェックするで
-	 * 
+	 *
 	 * @param c
 	 *            コンポーネント
 	 * @return
@@ -329,7 +380,7 @@ public class Predalien extends JPanel {
 
 	/**
 	 * 記録と記録の間の時間の計る
-	 * 
+	 *
 	 * @return イベント間の時間
 	 */
 	private String measureDelay() {
@@ -337,6 +388,11 @@ public class Predalien extends JPanel {
 		if (!(eventTime == 0L)) {
 			long diff = now - eventTime;
 			eventTime = now;
+
+			// robot.delayは最大値60000まで
+			if (diff > 60000) {
+				diff = 60000;
+			}
 			return diff + "ms";
 		} else {
 			eventTime = now;
@@ -346,8 +402,8 @@ public class Predalien extends JPanel {
 
 	/**
 	 * ルートのコンポーネントを取得する。<br>
-	 * Appletだとたぶんviewerが取れる？
-	 * 
+	 * Appletだとたぶんappletviewerが取れる？
+	 *
 	 * @param cmp
 	 *            コンポーネント
 	 * @return ルートコンポーネント
@@ -363,24 +419,24 @@ public class Predalien extends JPanel {
 
 	/**
 	 * 指定したコンポーネントを含むウィンドウのスクショを撮る
-	 * 
+	 *
 	 * @param cmp
 	 *            コンポーネント
 	 */
 	private void screenshot(Component cmp) {
 		Component root = getRootComponent(cmp);
 		BufferedImage bi = robot.createScreenCapture(root.getBounds());
-		try {
-			// TODO 保存先の決定方法
-			ImageIO.write(bi, "PNG", new File(""));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		//		try {
+		//			// TODO 保存先の決定方法
+		//			ImageIO.write(bi, "PNG", new File(""));
+		//		} catch (IOException e) {
+		//			e.printStackTrace();
+		//		}
 	}
 
 	/**
 	 * マウス自動操作
-	 * 
+	 *
 	 * @param datum
 	 *            データム
 	 */
@@ -389,10 +445,13 @@ public class Predalien extends JPanel {
 		// 待つ
 		robot.delay(datum.getDelayAsInt());
 
-		// TODO スクショ取得
-
 		// コンポーネント取得
 		Component cmp = this.searchComponent(datum);
+
+		// スクショ
+		screenshot(cmp);
+
+		System.out.println(cmp);
 
 		// コンポーネント座標
 		Point p = cmp.getLocationOnScreen();
@@ -447,14 +506,14 @@ public class Predalien extends JPanel {
 
 	/**
 	 * コンポーネントを探す
-	 * 
+	 *
 	 * @param datum
 	 * @return コンポーネント
 	 */
 	private Component searchComponent(PredalienDatum datum) {
 		Component[] cs = listComponents(parentCnt);
 		for (Component c : cs) {
-			if (c.getClass().getSimpleName().equals(datum.getClassName()) && c.getName().equals(datum.getName())) {
+			if (datum.getClassName().equals(c.getClass().getSimpleName()) && datum.getName().equals(c.getName())) {
 				return c;
 			}
 		}
@@ -488,6 +547,12 @@ public class Predalien extends JPanel {
 			} catch (AWTException e) {
 				e.printStackTrace();
 			}
+
+			// ターゲットを設定
+			reciever.setTarget(target);
+
+			// 受信機起動
+			reciever.run();
 
 			firstRendered = false;
 		}
