@@ -2,9 +2,12 @@ package org.net.perorin.predalien.client;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 
-public class PredalienDatumSender {
+import org.net.perorin.predalien.common.PredalienAbstractSender;
+import org.net.perorin.predalien.common.PredalienDatum;
+import org.net.perorin.predalien.common.PredalienUtil;
+
+public class PredalienDatumSender extends PredalienAbstractSender {
 
 	/**
 	 * インスタンス作成禁止
@@ -21,18 +24,7 @@ public class PredalienDatumSender {
 		try {
 			File file = File.createTempFile("Predalien" + File.separator +
 					String.format("%016d", System.currentTimeMillis()) + "-PredalienDatum", ".tmp");
-			PrintWriter fw = new PrintWriter(file);
-			fw.println("Target = " + datum.getTarget());
-			fw.println("Name = " + datum.getName());
-			fw.println("ClassName = " + datum.getClassName());
-			fw.println("MouseInfo = " + datum.getMouseInfo());
-			fw.println("RelaMousePos = " + datum.getRelaMousePos());
-			fw.println("AbsMousePos = " + datum.getAbsMousePos());
-			fw.println("KeyInfo = " + datum.getKeyInfo());
-			fw.println("KeyCode = " + datum.getKeyCode());
-			fw.println("KeyModifiers = " + datum.getKeyModifiers());
-			fw.println("Delay = " + datum.getDelay());
-			fw.close();
+			PredalienUtil.writeDatumOnFile(file, datum);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
