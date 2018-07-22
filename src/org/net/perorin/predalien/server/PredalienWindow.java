@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Timer;
@@ -21,7 +22,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -31,8 +32,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.plaf.metal.MetalToggleButtonUI;
 
-import org.net.perorin.predalien.client.PredalienDatum;
-import org.net.perorin.predalien.client.PredalienUtil;
+import org.net.perorin.predalien.common.PredalienDatum;
+import org.net.perorin.predalien.common.PredalienUtil;
 
 public class PredalienWindow extends JFrame {
 
@@ -60,7 +61,6 @@ public class PredalienWindow extends JFrame {
 		initNorthPanel();
 		initCenterPanel();
 		initEastPanel();
-		initSouthPanel();
 		initTimer();
 
 		this.setVisible(true);
@@ -93,7 +93,7 @@ public class PredalienWindow extends JFrame {
 		northPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 5, 5));
 		contentPane.add(northPanel, BorderLayout.NORTH);
 
-		final JToggleButton tglbtnRecord = new JToggleButton("記録");
+		JToggleButton tglbtnRecord = new JToggleButton("記録");
 		tglbtnRecord.setUI(myButtonUI);
 		tglbtnRecord.setBorder(new BevelBorder(BevelBorder.RAISED, Color.DARK_GRAY, Color.BLACK));
 		tglbtnRecord.setBackground(Color.DARK_GRAY);
@@ -110,7 +110,7 @@ public class PredalienWindow extends JFrame {
 		tglbtnRecord.setSelected(PredalienUtil.isRecording());
 		northPanel.add(tglbtnRecord);
 
-		final JToggleButton tglbtnPlay = new JToggleButton("再生");
+		JButton tglbtnPlay = new JButton("再生");
 		tglbtnPlay.setUI(myButtonUI);
 		tglbtnPlay.setBorder(new BevelBorder(BevelBorder.RAISED, Color.DARK_GRAY, Color.BLACK));
 		tglbtnPlay.setBackground(Color.DARK_GRAY);
@@ -120,7 +120,15 @@ public class PredalienWindow extends JFrame {
 		tglbtnPlay.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				// Not yet implemented...
+
+				// 再生できるので非録画中のみ
+				if (PredalienUtil.isRecording()) {
+					Toolkit.getDefaultToolkit().beep();
+					JOptionPane.showMessageDialog(PredalienWindow.this, "録画中は再生できません", "警告", JOptionPane.WARNING_MESSAGE);
+				} else {
+					PredalienDatum datum = new PredalienDatum((Vector) model.getDataVector().elementAt(table.getSelectedRow()));
+					PredalienOrderSender.send(datum);
+				}
 			}
 		});
 		northPanel.add(tglbtnPlay);
@@ -156,6 +164,17 @@ public class PredalienWindow extends JFrame {
 		btnUp.setBackground(Color.DARK_GRAY);
 		btnUp.setForeground(new Color(0, 200, 0));
 		btnUp.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 16));
+		btnUp.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+
+				// 2行目以上じゃないと意味ないよなぁ（威嚇）
+				if (table.getSelectedRow() > 1) {
+					model.moveRow(table.getSelectedRow(), table.getSelectedRow(), table.getSelectedRow() - 1);
+					table.setRowSelectionInterval(table.getSelectedRow() - 1, table.getSelectedRow() - 1);
+				}
+			}
+		});
 		eastPanel.add(btnUp);
 
 		JButton btnDown = new JButton("下へ");
@@ -164,6 +183,17 @@ public class PredalienWindow extends JFrame {
 		btnDown.setBackground(Color.DARK_GRAY);
 		btnDown.setForeground(new Color(0, 200, 0));
 		btnDown.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 16));
+		btnDown.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+
+				// 最終行 - 1以下じゃないと意味ないよなぁ（威嚇）
+				if (table.getSelectedRow() > -1 && table.getSelectedRow() < model.getRowCount() - 1) {
+					model.moveRow(table.getSelectedRow(), table.getSelectedRow(), table.getSelectedRow() + 1);
+					table.setRowSelectionInterval(table.getSelectedRow() + 1, table.getSelectedRow() + 1);
+				}
+			}
+		});
 		eastPanel.add(btnDown);
 
 		JButton btnIns = new JButton("追加");
@@ -178,6 +208,10 @@ public class PredalienWindow extends JFrame {
 				PredalienEdit pe = new PredalienEdit(PredalienWindow.this.getLocation());
 				pe.setModal(true);
 				pe.setVisible(true);
+				if (pe.transferDatum != null) {
+					addDatum(pe.transferDatum);
+				}
+				pe.dispose();
 			}
 		});
 		eastPanel.add(btnIns);
@@ -191,10 +225,18 @@ public class PredalienWindow extends JFrame {
 		btnEdit.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				PredalienEdit pe = new PredalienEdit(PredalienWindow.this.getLocation(),
-						new PredalienDatum((Vector) model.getDataVector().elementAt(table.getSelectedRow())));
-				pe.setModal(true);
-				pe.setVisible(true);
+
+				// データを選択しているか
+				if (table.getSelectedRow() != -1) {
+					PredalienEdit pe = new PredalienEdit(PredalienWindow.this.getLocation(),
+							new PredalienDatum((Vector) model.getDataVector().elementAt(table.getSelectedRow())));
+					pe.setModal(true);
+					pe.setVisible(true);
+					if (pe.transferDatum != null) {
+						addDatum(pe.transferDatum);
+					}
+					pe.dispose();
+				}
 			}
 		});
 		eastPanel.add(btnEdit);
@@ -208,23 +250,14 @@ public class PredalienWindow extends JFrame {
 		btnDel.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				model.removeRow(table.getSelectedRow());
+
+				// データを選択しているか
+				if (table.getSelectedRow() != -1) {
+					model.removeRow(table.getSelectedRow());
+				}
 			}
 		});
 		eastPanel.add(btnDel);
-	}
-
-	private void initSouthPanel() {
-		JPanel southPanel = new JPanel();
-		southPanel.setBackground(Color.DARK_GRAY);
-		FlowLayout flowLayout = (FlowLayout) southPanel.getLayout();
-		flowLayout.setAlignment(FlowLayout.LEADING);
-		contentPane.add(southPanel, BorderLayout.SOUTH);
-
-		JLabel lblMessage = new JLabel("");
-		lblMessage.setForeground(new Color(0, 200, 0));
-		lblMessage.setFont(new Font("ＭＳ Ｐゴシック", Font.PLAIN, 12));
-		southPanel.add(lblMessage);
 	}
 
 	private void initTimer() {
@@ -240,17 +273,15 @@ public class PredalienWindow extends JFrame {
 	}
 
 	private void addDatum(PredalienDatum pdm) {
-		if (PredalienUtil.isRecording()) {
-			model.addRow(pdm.toArray());
+		model.addRow(pdm.toArray());
 
-			// スクロールバーが一番下にあるか判定
-			BoundedRangeModel m = (BoundedRangeModel) scrollPane.getVerticalScrollBar().getModel();
-			if (m.getValue() + m.getExtent() >= m.getMaximum()) {
+		// スクロールバーが一番下にあるか判定
+		BoundedRangeModel m = (BoundedRangeModel) scrollPane.getVerticalScrollBar().getModel();
+		if (m.getValue() + m.getExtent() >= m.getMaximum()) {
 
-				// スクロールを一番下にする
-				scrollPane.getVerticalScrollBar().setValue(0);
-				scrollPane.getViewport().scrollRectToVisible(new Rectangle(0, Integer.MAX_VALUE - 1, 1, 1));
-			}
+			// スクロールを一番下にする
+			scrollPane.getVerticalScrollBar().setValue(0);
+			scrollPane.getViewport().scrollRectToVisible(new Rectangle(0, Integer.MAX_VALUE - 1, 1, 1));
 		}
 	}
 
