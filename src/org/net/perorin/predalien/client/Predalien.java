@@ -450,9 +450,7 @@ public class Predalien extends JPanel {
 
 		// スクショ
 		screenshot(cmp);
-
-		System.out.println(cmp);
-
+		
 		// コンポーネント座標
 		Point p = cmp.getLocationOnScreen();
 
