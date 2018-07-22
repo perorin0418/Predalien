@@ -1,4 +1,4 @@
-package org.net.perorin.predalien.client;
+package org.net.perorin.predalien.common;
 
 import java.util.LinkedList;
 

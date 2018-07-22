@@ -1,12 +1,15 @@
-package org.net.perorin.predalien.client;
+package org.net.perorin.predalien.common;
 
 import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Properties;
 
 public class PredalienUtil {
 
@@ -53,8 +56,9 @@ public class PredalienUtil {
 		String ret = "";
 		try {
 			File temp = File.createTempFile("temp-file-name", ".tmp");
-			temp.deleteOnExit();
 			String absolutePath = temp.getAbsolutePath();
+			temp.deleteOnExit();
+			temp.delete();
 			ret = absolutePath.substring(0, absolutePath.lastIndexOf(File.separator));
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -106,6 +110,77 @@ public class PredalienUtil {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	/** tmpファイル読み込み用 */
+	private static Properties properties = new Properties();
+
+	public static PredalienDatum convProperties2Datum(File file) {
+		try {
+			// ファイル取得
+			FileInputStream fis = new FileInputStream(file);
+
+			// ファイル読み込み
+			properties.load(fis);
+
+			// ファイルロック解除
+			fis.close();
+
+			// データムに変換
+			PredalienDatum datum = propertiesLoad(properties);
+
+			return datum;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static void writeDatumOnFile(File file, PredalienDatum datum) {
+		try {
+			PrintWriter fw = new PrintWriter(file);
+			fw.println("Target = " + datum.getTarget());
+			fw.println("Name = " + datum.getName());
+			fw.println("ClassName = " + datum.getClassName());
+			fw.println("MouseInfo = " + datum.getMouseInfo());
+			fw.println("RelaMousePos = " + datum.getRelaMousePos());
+			fw.println("AbsMousePos = " + datum.getAbsMousePos());
+			fw.println("KeyInfo = " + datum.getKeyInfo());
+			fw.println("KeyCode = " + datum.getKeyCode());
+			fw.println("KeyModifiers = " + datum.getKeyModifiers());
+			fw.println("Delay = " + datum.getDelay());
+			fw.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * tmpファイル読み込み
+	 * @param properties
+	 * @return
+	 */
+	private static PredalienDatum propertiesLoad(Properties properties) {
+		String target = properties.getProperty("Target");
+		String name = properties.getProperty("Name");
+		String className = properties.getProperty("ClassName");
+		String mouseInfo = properties.getProperty("MouseInfo");
+		String relaMousePos = properties.getProperty("RelaMousePos");
+		String absMousePos = properties.getProperty("AbsMousePos");
+		String keyInfo = properties.getProperty("KeyInfo");
+		String keyCode = properties.getProperty("KeyCode");
+		String keyModifiers = properties.getProperty("KeyModifiers");
+		String delay = properties.getProperty("Delay");
+		PredalienDatum datum = new PredalienDatum(target, name, className, delay);
+		datum.registMouse(mouseInfo, relaMousePos, absMousePos);
+		datum.registKey(keyInfo, keyCode, keyModifiers);
+		return datum;
+	}
+
+	public static void cleanTmp(){
+		// TODO tmpファルダ内のお掃除
 	}
 
 }

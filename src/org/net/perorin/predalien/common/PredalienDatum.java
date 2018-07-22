@@ -1,4 +1,4 @@
-package org.net.perorin.predalien.client;
+package org.net.perorin.predalien.common;
 
 import java.util.Vector;
 
@@ -14,6 +14,9 @@ public class PredalienDatum {
 	private String keyCode;
 	private String keyModifiers;
 	private String delay;
+
+	public PredalienDatum() {
+	}
 
 	public PredalienDatum(String target, String name, String className, String delay) {
 		setTarget(target);
