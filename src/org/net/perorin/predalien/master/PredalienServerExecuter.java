@@ -1,4 +1,4 @@
-package org.net.perorin.predalien.server;
+package org.net.perorin.predalien.master;
 
 import org.net.perorin.predalien.common.PredalienUtil;
 

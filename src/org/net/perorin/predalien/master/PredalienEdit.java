@@ -1,4 +1,4 @@
-package org.net.perorin.predalien.server;
+package org.net.perorin.predalien.master;
 
 import java.awt.Color;
 import java.awt.Font;

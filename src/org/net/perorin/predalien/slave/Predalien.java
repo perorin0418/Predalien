@@ -1,4 +1,4 @@
-package org.net.perorin.predalien.client;
+package org.net.perorin.predalien.slave;
 
 import java.awt.AWTException;
 import java.awt.Color;

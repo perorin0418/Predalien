@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 
-import org.net.perorin.predalien.client.Predalien;
+import org.net.perorin.predalien.slave.Predalien;
 
 public class ViewerTest extends JApplet {
 	private JTextField textField;
