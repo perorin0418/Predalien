@@ -17,13 +17,16 @@ public class PredalienDatumSender extends PredalienAbstractSender {
 
 	/**
 	 * データ送信
+	 * 
 	 * @param datum
 	 */
 	public static void send(PredalienDatum datum) {
 		PredalienUtil.createTempDir();
 		try {
-			File file = File.createTempFile("Predalien" + File.separator +
-					String.format("%016d", System.currentTimeMillis()) + "-PredalienDatum", ".tmp");
+			File file = File.createTempFile(
+					String.format("%016d", System.currentTimeMillis()) + "-PredalienDatum",
+					".tmp",
+					new File(PredalienUtil.getTempFilePath() + File.separator + "Predalien"));
 			PredalienUtil.writeDatumOnFile(file, datum);
 		} catch (IOException e) {
 			e.printStackTrace();
