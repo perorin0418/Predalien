@@ -87,7 +87,6 @@ public class PredalienUtil {
 		}
 		try {
 			File file = File.createTempFile("Recording-", ".tmp",new File(getTempFilePath() + File.separator + "Predalien"));
-			System.out.println(file);
 			file.deleteOnExit();
 			PrintWriter pw = new PrintWriter(file);
 			pw.println(String.valueOf(b));
