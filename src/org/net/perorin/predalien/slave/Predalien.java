@@ -524,10 +524,60 @@ public class Predalien extends JPanel {
 			robot.keyRelease(KeyEvent.VK_ALT);
 		}
 
-		logger.info("Automation Click end");
+		logger.info("[Click Automation] end");
 	}
 
 	public void key(PredalienDatum datum) {
+
+		logger.info("[Key Automation] start");
+
+		logger.info("[Key Automation] wating: " + datum.getDelay());
+
+		// 待つ
+		robot.delay(datum.getDelayAsInt());
+
+		// キー修飾
+		// Shift（10進で1）
+		if ((Integer.parseInt(datum.getKeyModifiers()) & 1 << 0) != 0) {
+			robot.keyPress(KeyEvent.VK_SHIFT);
+			logger.info("[Key Automation] key modifiers: Shift");
+		}
+		// Ctrl（10進で2）
+		if ((Integer.parseInt(datum.getKeyModifiers()) & 1 << 1) != 0) {
+			robot.keyPress(KeyEvent.VK_CONTROL);
+			logger.info("[Key Automation] key modifiers: Ctrl");
+		}
+		// Alt（10進で8）
+		if ((Integer.parseInt(datum.getKeyModifiers()) & 1 << 3) != 0) {
+			robot.keyPress(KeyEvent.VK_ALT);
+			logger.info("[Key Automation] key modifiers: Alt");
+		}
+
+		logger.info("[Key Automation] key: " + datum.getKeyInfo());
+
+		// キー入力
+		robot.keyPress(Integer.parseInt(datum.getKeyCode()));
+		robot.delay(100);
+		robot.keyRelease(Integer.parseInt(datum.getKeyCode()));
+
+		// キー修飾
+		// Shift（10進で1）
+		if ((Integer.parseInt(datum.getKeyModifiers()) & 1 << 0) != 0) {
+			robot.keyRelease(KeyEvent.VK_SHIFT);
+			logger.info("[Key Automation] key modifiers: Shift");
+		}
+		// Ctrl（10進で2）
+		if ((Integer.parseInt(datum.getKeyModifiers()) & 1 << 1) != 0) {
+			robot.keyRelease(KeyEvent.VK_CONTROL);
+			logger.info("[Key Automation] key modifiers: Ctrl");
+		}
+		// Alt（10進で8）
+		if ((Integer.parseInt(datum.getKeyModifiers()) & 1 << 3) != 0) {
+			robot.keyRelease(KeyEvent.VK_ALT);
+			logger.info("[Key Automation] key modifiers: Alt");
+		}
+		
+		logger.info("[Key Automation] end");
 
 	}
 
