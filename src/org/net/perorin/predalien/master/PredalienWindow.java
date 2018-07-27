@@ -12,18 +12,23 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.swing.BoundedRangeModel;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
@@ -40,12 +45,17 @@ public class PredalienWindow extends JFrame {
 	private static PredalienWindow instance;
 	private JPanel contentPane;
 	private JScrollPane scrollPane;
+	private JPopupMenu popup;
+	private JRadioButtonMenuItem beginItem;
+	private JRadioButtonMenuItem continueItem;
+	private JRadioButtonMenuItem selectItem;
 	private PredalienTable table;
 	private PredalienModel model;
 	private PredalienDatumReciever reciever;
 
 	/**
 	 * シングルトン
+	 * 
 	 * @return PredalienWindow
 	 */
 	public static PredalienWindow getInstance() {
@@ -110,28 +120,56 @@ public class PredalienWindow extends JFrame {
 		tglbtnRecord.setSelected(PredalienUtil.isRecording());
 		northPanel.add(tglbtnRecord);
 
-		JButton tglbtnPlay = new JButton("再生");
-		tglbtnPlay.setUI(myButtonUI);
-		tglbtnPlay.setBorder(new BevelBorder(BevelBorder.RAISED, Color.DARK_GRAY, Color.BLACK));
-		tglbtnPlay.setBackground(Color.DARK_GRAY);
-		tglbtnPlay.setForeground(new Color(0, 200, 0));
-		tglbtnPlay.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 32));
-		tglbtnPlay.setPreferredSize(new Dimension(90, 45));
-		tglbtnPlay.addActionListener(new ActionListener() {
+		JButton btnPlay = new JButton("再生");
+		btnPlay.setUI(myButtonUI);
+		btnPlay.setBorder(new BevelBorder(BevelBorder.RAISED, Color.DARK_GRAY, Color.BLACK));
+		btnPlay.setBackground(Color.DARK_GRAY);
+		btnPlay.setForeground(new Color(0, 200, 0));
+		btnPlay.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 32));
+		btnPlay.setPreferredSize(new Dimension(90, 45));
+		btnPlay.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 
-				// 再生できるので非録画中のみ
-				if (PredalienUtil.isRecording()) {
-					Toolkit.getDefaultToolkit().beep();
-					JOptionPane.showMessageDialog(PredalienWindow.this, "録画中は再生できません", "警告", JOptionPane.WARNING_MESSAGE);
-				} else {
-					PredalienDatum datum = new PredalienDatum((Vector) model.getDataVector().elementAt(table.getSelectedRow()));
-					PredalienOrderSender.send(datum);
+				if (model.getRowCount() > 0) {
+					// 再生できるので非録画中のみ
+					if (PredalienUtil.isRecording()) {
+						Toolkit.getDefaultToolkit().beep();
+						JOptionPane.showMessageDialog(PredalienWindow.this, "録画中は再生できません", "警告",
+								JOptionPane.WARNING_MESSAGE);
+					} else {
+						play();
+					}
 				}
 			}
 		});
-		northPanel.add(tglbtnPlay);
+		btnPlay.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+
+				// 右クリックなら
+				if (MouseEvent.BUTTON3 == e.getButton()) {
+					popup.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+		});
+		northPanel.add(btnPlay);
+
+		popup = new JPopupMenu();
+		ButtonGroup group = new ButtonGroup();
+		beginItem = new JRadioButtonMenuItem("最初から連続再生");
+		beginItem.setFont(new Font("ＭＳ ゴシック", Font.PLAIN, 18));
+		continueItem = new JRadioButtonMenuItem("選択位置から連続再生", true);
+		continueItem.setFont(new Font("ＭＳ ゴシック", Font.PLAIN, 18));
+		selectItem = new JRadioButtonMenuItem("選択位置のみ再生");
+		selectItem.setFont(new Font("ＭＳ ゴシック", Font.PLAIN, 18));
+		group.add(beginItem);
+		group.add(continueItem);
+		group.add(selectItem);
+		popup.add(beginItem);
+		popup.add(continueItem);
+		popup.add(selectItem);
 	}
 
 	private void initCenterPanel() {
@@ -270,6 +308,39 @@ public class PredalienWindow extends JFrame {
 			}
 		};
 		timer.schedule(task, 0, 1000);
+	}
+
+	private void play() {
+
+		// 選択位置のみ再生
+		if (selectItem.isSelected()) {
+			if (table.getSelectedRow() != -1) {
+				PredalienDatum datum = new PredalienDatum((Vector) model.getDataVector().elementAt(
+						table.getSelectedRow()));
+				PredalienOrderSender.send(datum);
+				return;
+			}
+		}
+
+		// 最初から連続再生
+		if (beginItem.isSelected()) {
+
+			// 先頭を選択する
+			table.setRowSelectionInterval(0, 0);
+		}
+
+		// 選択位置から連続再生
+		for (int select = table.getSelectedRow(); select < table.getRowCount(); select++) {
+			PredalienDatum datum = new PredalienDatum((Vector) model.getDataVector().elementAt(select));
+			PredalienOrderSender.send(datum);
+			
+			// あんまり速く送ると良くないと思うの
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private void addDatum(PredalienDatum pdm) {
