@@ -56,7 +56,7 @@ public class Predalien extends JPanel {
 	private Logger logger = Logger.getLogger(Predalien.class.getSimpleName());
 
 	/** Delay計測用 */
-	private long eventTime = 0L;
+	private static long eventTime = 0L;
 
 	/** 透明なカーソル */
 	private Cursor transCur = Toolkit.getDefaultToolkit().createCustomCursor(
@@ -108,7 +108,8 @@ public class Predalien extends JPanel {
 			// マウス座標をコンポーネント内の座標系で取得
 			Point childPoint = getLocationFrom(c, parentCnt);
 
-			String relaMousePos = "x=" + childPoint.x + ",y=" + childPoint.y;
+			String relaMousePos = "x=" + (parentCnt.getMousePosition().x - childPoint.x) +
+					",y=" + (parentCnt.getMousePosition().y - childPoint.y);
 			String absMousePos = "x=" + parentCnt.getMousePosition().x + ",y=" + parentCnt.getMousePosition().y;
 
 			// 前回のイベント時の時間差
@@ -205,6 +206,7 @@ public class Predalien extends JPanel {
 
 	/**
 	 * cmpの位置をfromを基本とした座標系で取得する
+	 * 
 	 * @param cmp
 	 * @param from
 	 * @return
@@ -222,6 +224,7 @@ public class Predalien extends JPanel {
 
 	/**
 	 * cmpの親をさかのぼっていき、toになるまでの一覧を取得する
+	 * 
 	 * @param cmp
 	 * @param to
 	 * @return 親一覧
@@ -426,12 +429,12 @@ public class Predalien extends JPanel {
 	private void screenshot(Component cmp) {
 		Component root = getRootComponent(cmp);
 		BufferedImage bi = robot.createScreenCapture(root.getBounds());
-		//		try {
-		//			// TODO 保存先の決定方法
-		//			ImageIO.write(bi, "PNG", new File(""));
-		//		} catch (IOException e) {
-		//			e.printStackTrace();
-		//		}
+		// try {
+		// // TODO 保存先の決定方法
+		// ImageIO.write(bi, "PNG", new File(""));
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
 	}
 
 	/**
@@ -442,20 +445,39 @@ public class Predalien extends JPanel {
 	 */
 	public void click(PredalienDatum datum) {
 
+		logger.info("[Click Automation] start");
+
+		logger.info("[Click Automation] wating: " + datum.getDelay());
+
 		// 待つ
 		robot.delay(datum.getDelayAsInt());
 
 		// コンポーネント取得
 		Component cmp = this.searchComponent(datum);
 
+		logger.info("[Click Automation] search component: " + cmp.getClass() + " , " + cmp.getName());
+
+		logger.info("[Click Automation] screenshot");
+
 		// スクショ
 		screenshot(cmp);
-		
+
 		// コンポーネント座標
 		Point p = cmp.getLocationOnScreen();
 
 		// クリック位置
-		Point clickPoint = PredalienUtil.convMousePosString2Point(datum.getRelaMousePos());
+		Point clickPoint;
+
+		// 取得したコンポーネントが親コンポーネントなら絶対座標を使用する。
+		if (parentCnt.equals(cmp)) {
+			clickPoint = PredalienUtil.convMousePosString2Point(datum.getAbsMousePos());
+		} else {
+			clickPoint = PredalienUtil.convMousePosString2Point(datum.getRelaMousePos());
+		}
+
+		logger.info("[Click Automation] click point: " + "x=" + clickPoint.x + ",y=" + clickPoint.y);
+
+		logger.info("[Click Automation] mouse move: " + "x=" + (p.x + clickPoint.x) + ",y=" + (p.y + clickPoint.y));
 
 		// マウス移動
 		robot.mouseMove(p.x + clickPoint.x, p.y + clickPoint.y);
@@ -463,13 +485,18 @@ public class Predalien extends JPanel {
 		// キー修飾プレス
 		if (datum.getMouseInfo().contains("Shift")) {
 			robot.keyPress(KeyEvent.VK_SHIFT);
+			logger.info("[Click Automation] key modifiers: Shift");
 		}
 		if (datum.getMouseInfo().contains("Ctrl")) {
 			robot.keyPress(KeyEvent.VK_CONTROL);
+			logger.info("[Click Automation] key modifiers: Ctrl");
 		}
 		if (datum.getMouseInfo().contains("Alt")) {
 			robot.keyPress(KeyEvent.VK_ALT);
+			logger.info("[Click Automation] key modifiers: Alt");
 		}
+
+		logger.info("[Click Automation] mouse click: " + datum.getMouseInfo());
 
 		// マウスクリック
 		if (datum.getMouseInfo().contains("Button1")) {
@@ -496,6 +523,8 @@ public class Predalien extends JPanel {
 		if (datum.getMouseInfo().contains("Alt")) {
 			robot.keyRelease(KeyEvent.VK_ALT);
 		}
+
+		logger.info("Automation Click end");
 	}
 
 	public void key(PredalienDatum datum) {
@@ -509,13 +538,29 @@ public class Predalien extends JPanel {
 	 * @return コンポーネント
 	 */
 	private Component searchComponent(PredalienDatum datum) {
+		Component ret = null;
 		Component[] cs = listComponents(parentCnt);
 		for (Component c : cs) {
+
+			// データムに登録された内容もとに探す
 			if (datum.getClassName().equals(c.getClass().getSimpleName()) && datum.getName().equals(c.getName())) {
-				return c;
+				ret = c;
+				break;
 			}
 		}
-		return getComponentAtDeep(parentCnt, PredalienUtil.convMousePosString2Point(datum.getAbsMousePos()));
+
+		// もしデータムの内容から見つからなければ、マウスからコンポーネントを探す
+		if (ret == null) {
+			ret = getComponentAtDeep(parentCnt, PredalienUtil.convMousePosString2Point(datum.getAbsMousePos()));
+		}
+
+		// 探し出したコンポーネントが画面に描画されているならコンポーネントを返す
+		// そうじゃないなら、親コンポーネントを返す
+		if (ret.isShowing()) {
+			return ret;
+		} else {
+			return parentCnt;
+		}
 	}
 
 	@Override
