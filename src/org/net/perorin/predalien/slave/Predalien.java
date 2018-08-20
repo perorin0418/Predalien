@@ -206,7 +206,7 @@ public class Predalien extends JPanel {
 
 	/**
 	 * cmpの位置をfromを基本とした座標系で取得する
-	 * 
+	 *
 	 * @param cmp
 	 * @param from
 	 * @return
@@ -224,7 +224,7 @@ public class Predalien extends JPanel {
 
 	/**
 	 * cmpの親をさかのぼっていき、toになるまでの一覧を取得する
-	 * 
+	 *
 	 * @param cmp
 	 * @param to
 	 * @return 親一覧
@@ -576,7 +576,7 @@ public class Predalien extends JPanel {
 			robot.keyRelease(KeyEvent.VK_ALT);
 			logger.info("[Key Automation] key modifiers: Alt");
 		}
-		
+
 		logger.info("[Key Automation] end");
 
 	}

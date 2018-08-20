@@ -56,6 +56,23 @@ public class PredalienDatum {
 		return new Object[] { target, name, className, mouseInfo, relaMousePos, absMousePos, keyInfo, keyCode, keyModifiers, delay };
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("PredalienDatum: ");
+		sb.append("Target: [" + target + "] ");
+		sb.append("Name: [" + name + "] ");
+		sb.append("ClassName: [" + className + "] ");
+		sb.append("MouseInfo: [" + mouseInfo + "] ");
+		sb.append("RelaMousePos: [" + relaMousePos + "] ");
+		sb.append("AbsMousePos: [" + absMousePos + "] ");
+		sb.append("KeyInfo: [" + keyInfo + "] ");
+		sb.append("KeyCode: [" + keyCode + "] ");
+		sb.append("KeyModifiers: [" + keyModifiers + "] ");
+		sb.append("Delay: [" + delay + "]");
+		return sb.toString();
+	}
+
 	public String getTarget() {
 		return target;
 	}

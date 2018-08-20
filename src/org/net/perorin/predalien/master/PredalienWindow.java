@@ -55,7 +55,7 @@ public class PredalienWindow extends JFrame {
 
 	/**
 	 * シングルトン
-	 * 
+	 *
 	 * @return PredalienWindow
 	 */
 	public static PredalienWindow getInstance() {
@@ -331,9 +331,13 @@ public class PredalienWindow extends JFrame {
 
 		// 選択位置から連続再生
 		for (int select = table.getSelectedRow(); select < table.getRowCount(); select++) {
+
+			// データム取得
 			PredalienDatum datum = new PredalienDatum((Vector) model.getDataVector().elementAt(select));
-			PredalienOrderSender.send(datum);
-			
+
+			// 実行
+			PredalienOrderSender.send(datum, true);
+
 			// あんまり速く送ると良くないと思うの
 			try {
 				Thread.sleep(100);
